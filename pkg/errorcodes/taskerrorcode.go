@@ -12,4 +12,10 @@ const (
 	FailedToParsetaskJSON
 	// NoTaskToErase means an attempt to delete a non-existent task
 	NoTaskToErase
+	// FailedToMakeARequest means we were unable to create a request object
+	FailedToMakeARequest
+	// FailedToSendARequest means we were unable to send a request
+	FailedToSendARequest
+	// FailedToReadRequestBody only has docs due to linter's wimpyness
+	FailedToReadRequestBody
 )

@@ -2,20 +2,25 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/budden/rqr/pkg/errorcodes"
 )
 
-// jsonError is an error which is returned to the client in JSON format
-type jsonError struct {
+// errorWithCode is an error which is returned to the client in JSON format
+type errorWithCode struct {
 	Code    errorcodes.TaskErrorCode
 	Message string
 }
 
+func newErrorWithCode(Code errorcodes.TaskErrorCode, format string, args ...interface{}) *errorWithCode {
+	return &errorWithCode{Code: Code, Message: fmt.Sprintf(format, args...)}
+}
+
 // Error ...
-func (je *jsonError) Error() string {
+func (je *errorWithCode) Error() string {
 	return je.Message
 }
 
@@ -27,7 +32,7 @@ func reportTaskErrorToClientIf(err error, w http.ResponseWriter) (doReturn bool)
 		return
 	}
 	doReturn = true
-	if je, ok := err.(*jsonError); ok {
+	if je, ok := err.(*errorWithCode); ok {
 		encoder := json.NewEncoder(w)
 		err := encoder.Encode(je)
 		if err != nil {

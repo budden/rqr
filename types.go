@@ -1,5 +1,7 @@
 package main
 
+import "net/http"
+
 // ParsedTask - это просьба в разобранном виде. Из ТЗ:
 // В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.
 type ParsedTask struct {
@@ -14,8 +16,8 @@ type ParsedTask struct {
 // с полями {сгенерированный id запроса, http статус, заголовки, длинна ответа}.
 type ExecutedTask struct {
 	Httpstatus int
-	Headers    string
-	Bodylength string
+	Headers    http.Header
+	Bodylength int
 }
 
 // Task - просьба и результат её выполнения

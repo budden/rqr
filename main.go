@@ -54,14 +54,13 @@ func convertJSONTaskToParsedTask(req *http.Request) (pt *ParsedTask, err error) 
 	// this is not an efficient way to check errors, but it saves lines of code :)
 
 	if err != nil {
-		err = &jsonError{errorcodes.FailedToParsetaskJSON,
-			fmt.Sprintf("Failed to parse request JSON data. Error is %#v", err)}
+		err = newErrorWithCode(errorcodes.FailedToParsetaskJSON, "Failed to parse request JSON data. Error is %#v", err)
 		return
 	}
 	lenTask := len(ji)
 	if lenTask != 2 && lenTask != 4 {
-		err = &jsonError{errorcodes.FailedToParsetaskJSON,
-			"JSON task must be of the form [method, address] or of the form [method, address, headers, body]"}
+		err = newErrorWithCode(errorcodes.FailedToParsetaskJSON,
+			"JSON task must be of the form [method, address] or of the form [method, address, headers, body]")
 		return
 	}
 	pt = &ParsedTask{Method: ji[0], URL: ji[1]}
