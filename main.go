@@ -1,6 +1,6 @@
 package main
 
-// просьба = inquiry
+// просьба = task
 
 import (
 	"encoding/json"
@@ -19,46 +19,57 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 <body>
 <h1>Requester service.</h1>
 <ul>
-<li>Use POST /inquiryadd json urlencoded to add a request</li>
-<li>Use POST /inquirydel?id=requestId to delete a request</li>
+<li>Use POST /taskadd json urlencoded to add a request</li>
+<li>Use POST /taskdel?id=requestId to delete a request</li>
 </body>
 </html>`)
 }
 
 func main() {
-	// FIXME process
+	// FIXME disallow sub-urls for /
 	http.HandleFunc("/", handleRoot)
-	http.HandleFunc("/inquiryadd", handleRequestAdd)
+	http.HandleFunc("/taskadd", handleRequestAdd)
 	log.Fatal(http.ListenAndServe(":8086", nil))
 }
 
-// ParsedInquiry - это просьба в разобранном виде. Из ТЗ:
-// В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.
-type ParsedInquiry struct {
-	Method  string
-	URL     string
-	Headers string
-	Body    string
-}
-
-const errorCodeFailedToParseInquiry = 1
-
 // https://stackoverflow.com/a/15685432/9469533
-// To test, use curl -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/inquiryadd
+// To test, use curl -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/taskadd
 func handleRequestAdd(w http.ResponseWriter, req *http.Request) {
-	decoder := json.NewDecoder(req.Body)
-	var t []string
-	err := decoder.Decode(&t)
-	if err != nil {
-		encoder := json.NewEncoder(w)
-		reply := []interface{}{errorcodes.FailedToParseInquiryJson, fmt.Sprintf("Failed to parse request JSON data. Error is %#v", err)}
-		err = encoder.Encode(reply)
-		if err != nil {
-			log.Printf("Error while sending error response to a client: %#v\n", err)
-		}
+	pi, err := convertJSONTaskToParsedTask(req)
+	if reportTaskErrorToClientIf(err, w) {
 		return
 	}
+	ei, err1 := executeTask(pi)
+	if reportTaskErrorToClientIf(err, w) {
+		return
+	}
+	task := saveTask(pi, ei)
+	fmt.Println(task)
+}
 
+func convertJSONTaskToParsedTask(req *http.Request) (pi *ParsedTask, err error) {
+	decoder := json.NewDecoder(req.Body)
+	ji := jsonTask{}
+	err = decoder.Decode(&ji)
+	// this is not an efficient way to check errors, but it saves lines of code :)
+
+	if err != nil {
+		err = &jsonError{errorcodes.FailedToParsetaskJSON,
+			fmt.Sprintf("Failed to parse request JSON data. Error is %#v", err)}
+		return
+	}
+	lenTask := len(ji)
+	if lenTask != 2 && lenTask != 4 {
+		err = &jsonError{errorcodes.FailedToParsetaskJSON,
+			"JSON task must be of the form [method, address] or of the form [method, address, headers, body]"}
+		return
+	}
+	pi = &ParsedTask{Method: ji[0], URL: ji[1]}
+	if lenTask == 4 {
+		pi.Headers = ji[2]
+		pi.Body = ji[3]
+	}
+	return
 }
 
 /* Клиент просит сервис выполнить http запрос к некому ресурсу. В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.

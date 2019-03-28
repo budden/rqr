@@ -1,13 +1,15 @@
 package errorcodes
 
-//go:generate stringer -type=InquiryErrorCode
+//go:generate stringer -type=TaskErrorCode
 
-// InquiryErrorCode is returned by service
-type InquiryErrorCode int
+// TaskErrorCode is returned by service
+type TaskErrorCode int
 
 const (
 	// NoError means no error, obviously
-	NoError InquiryErrorCode = iota
-	// FailedToParseInquiryJson means incorrect json in request
-	FailedToParseInquiryJson
+	NoError TaskErrorCode = iota
+	// FailedToParsetaskJSON means an incorrect json in request
+	FailedToParsetaskJSON
+	// NoTaskToErase means an attempt to delete a non-existent task
+	NoTaskToErase
 )
