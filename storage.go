@@ -27,6 +27,7 @@ func getTask(iString string) (t *Task, ok bool) {
 
 func eraseTask(iString string) (err *jsonError) {
 	t, ok := taskStorage[iString]
+	_ = t
 	if !ok {
 		msg := fmt.Sprintf("Task «%s» not found", iString)
 		err = &jsonError{Code: errorcodes.NoTaskToErase, Message: msg}

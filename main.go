@@ -40,7 +40,7 @@ func handleRequestAdd(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	ei, err1 := executeTask(pi)
-	if reportTaskErrorToClientIf(err, w) {
+	if reportTaskErrorToClientIf(err1, w) {
 		return
 	}
 	task := saveTask(pi, ei)
