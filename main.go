@@ -35,19 +35,19 @@ func main() {
 // https://stackoverflow.com/a/15685432/9469533
 // To test, use curl -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/taskadd
 func handleRequestAdd(w http.ResponseWriter, req *http.Request) {
-	pi, err := convertJSONTaskToParsedTask(req)
+	pt, err := convertJSONTaskToParsedTask(req)
 	if reportTaskErrorToClientIf(err, w) {
 		return
 	}
-	ei, err1 := executeTask(pi)
+	et, err1 := executeTask(pt)
 	if reportTaskErrorToClientIf(err1, w) {
 		return
 	}
-	task := saveTask(pi, ei)
+	task := saveTask(pt, et)
 	fmt.Println(task)
 }
 
-func convertJSONTaskToParsedTask(req *http.Request) (pi *ParsedTask, err error) {
+func convertJSONTaskToParsedTask(req *http.Request) (pt *ParsedTask, err error) {
 	decoder := json.NewDecoder(req.Body)
 	ji := jsonTask{}
 	err = decoder.Decode(&ji)
@@ -64,10 +64,10 @@ func convertJSONTaskToParsedTask(req *http.Request) (pi *ParsedTask, err error) 
 			"JSON task must be of the form [method, address] or of the form [method, address, headers, body]"}
 		return
 	}
-	pi = &ParsedTask{Method: ji[0], URL: ji[1]}
+	pt = &ParsedTask{Method: ji[0], URL: ji[1]}
 	if lenTask == 4 {
-		pi.Headers = ji[2]
-		pi.Body = ji[3]
+		pt.Headers = ji[2]
+		pt.Body = ji[3]
 	}
 	return
 }

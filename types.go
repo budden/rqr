@@ -21,6 +21,6 @@ type ExecutedTask struct {
 // Task - просьба и результат её выполнения
 type Task struct {
 	ID string
-	pi *ParsedTask
-	ei *ExecutedTask
+	pt *ParsedTask
+	et *ExecutedTask
 }

@@ -1,6 +1,6 @@
 package main
 
-func executeTask(pi *ParsedTask) (ei *ExecutedTask, err *jsonError) {
+func executeTask(pt *ParsedTask) (et *ExecutedTask, err *jsonError) {
 	return
 
 }

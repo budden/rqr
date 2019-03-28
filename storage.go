@@ -12,11 +12,11 @@ var one = big.NewInt(1)
 
 var taskStorage map[string]*Task
 
-func saveTask(pi *ParsedTask, ei *ExecutedTask) (t *Task) {
+func saveTask(pt *ParsedTask, et *ExecutedTask) (t *Task) {
 	// FIXME will the map be of size 1?
 	queryID.Add(queryID, one)
 	iString := queryID.String()
-	taskStorage[iString] = &Task{ID: iString, pi: pi, ei: ei}
+	taskStorage[iString] = &Task{ID: iString, pt: pt, et: et}
 	return
 }
 
