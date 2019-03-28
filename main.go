@@ -1,8 +1,15 @@
 package main
 
+// просьба = inquiry
+
 import (
+	"encoding/json"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
+
+	"github.com/budden/rqr/pkg/errorcodes"
 )
 
 func handleRoot(w http.ResponseWriter, _ *http.Request) {
@@ -12,15 +19,46 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 <body>
 <h1>Requester service.</h1>
 <ul>
-<li>Use POST /requestadd json urlencoded to add a request</li>
-<li>Use POST /requestdel?id=requestId to delete a request</li>
+<li>Use POST /inquiryadd json urlencoded to add a request</li>
+<li>Use POST /inquirydel?id=requestId to delete a request</li>
 </body>
 </html>`)
 }
 
 func main() {
+	// FIXME process
 	http.HandleFunc("/", handleRoot)
-	http.ListenAndServe(":8086", nil)
+	http.HandleFunc("/inquiryadd", handleRequestAdd)
+	log.Fatal(http.ListenAndServe(":8086", nil))
+}
+
+// ParsedInquiry - это просьба в разобранном виде. Из ТЗ:
+// В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.
+type ParsedInquiry struct {
+	Method  string
+	URL     string
+	Headers string
+	Body    string
+}
+
+const errorCodeFailedToParseInquiry = 1
+
+// https://stackoverflow.com/a/15685432/9469533
+// To test, use curl -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/inquiryadd
+func handleRequestAdd(w http.ResponseWriter, req *http.Request) {
+	decoder := json.NewDecoder(req.Body)
+	var t []string
+	err := decoder.Decode(&t)
+	if err != nil {
+		encoder := json.NewEncoder(w)
+		reply := []interface{}{errorcodes.FailedToParseInquiryJson, fmt.Sprintf("Failed to parse request JSON data. Error is %#v", err)}
+		err = encoder.Encode(reply)
+		if err != nil {
+			log.Printf("Error while sending error response to a client: %#v\n", err)
+		}
+		return
+	}
+
 }
 
 /* Клиент просит сервис выполнить http запрос к некому ресурсу. В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.
