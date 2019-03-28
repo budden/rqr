@@ -1,6 +1,7 @@
-package errorcodes
-
 //go:generate stringer -type=TaskErrorCode
+
+// Package errorcodes contains error codes we return to the client in a json form
+package errorcodes
 
 // TaskErrorCode is returned by service
 type TaskErrorCode int
