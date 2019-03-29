@@ -3,15 +3,17 @@ package main
 // просьба = fetchTask
 
 import (
-	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"strings"
-
-	"github.com/budden/rqr/pkg/errorcodes"
 )
+
+func main() {
+	// FIXME disallow sub-urls for /
+	http.HandleFunc("/", handleRoot)
+	http.HandleFunc("/fetchtaskadd", handleFetchTaskAdd)
+	log.Fatal(http.ListenAndServe(":8086", nil))
+}
 
 func handleRoot(w http.ResponseWriter, req *http.Request) {
 	if return404IfExtraURLChars("/", w, req) {
@@ -27,61 +29,6 @@ func handleRoot(w http.ResponseWriter, req *http.Request) {
 <li>Use POST /fetchTaskdel?id=requestId to delete a request</li>
 </body>
 </html>`)
-}
-
-func return404IfExtraURLChars(path string, w http.ResponseWriter, req *http.Request) (doReturn bool) {
-	if strings.TrimPrefix(req.URL.Path, path) != "" {
-		w.WriteHeader(http.StatusNotFound)
-		doReturn = true
-	}
-	return
-}
-
-func main() {
-	// FIXME disallow sub-urls for /
-	http.HandleFunc("/", handleRoot)
-	http.HandleFunc("/fetchtaskadd", handleRequestAdd)
-	log.Fatal(http.ListenAndServe(":8086", nil))
-}
-
-// https://stackoverflow.com/a/15685432/9469533
-// To test, use curl -i -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/fetchTaskadd
-// To test error reporting, remove the comma from JSON :)
-func handleRequestAdd(w http.ResponseWriter, req *http.Request) {
-	pt, err := convertJSONFetchTaskToParsedFetchTask(req)
-	if reportFetchTaskErrorToClientIf(err, w) {
-		return
-	}
-	et, err1 := executeFetchTask(pt)
-	if reportFetchTaskErrorToClientIf(err1, w) {
-		return
-	}
-	fetchTask := saveFetchTask(pt, et)
-	fmt.Println(fetchTask)
-}
-
-func convertJSONFetchTaskToParsedFetchTask(req *http.Request) (pt *ParsedFetchTask, err error) {
-	decoder := json.NewDecoder(req.Body)
-	ji := jsonFetchTask{}
-	err = decoder.Decode(&ji)
-	// this is not an efficient way to check errors, but it saves lines of code :)
-
-	if err != nil {
-		err = newErrorWithCode(errorcodes.FailedToParsefetchTaskJSON, "Failed to parse request JSON data. Error is %#v", err)
-		return
-	}
-	lenFetchTask := len(ji)
-	if lenFetchTask != 2 && lenFetchTask != 4 {
-		err = newErrorWithCode(errorcodes.FailedToParsefetchTaskJSON,
-			"JSON fetchTask must be of the form [method, address] or of the form [method, address, headers, body]")
-		return
-	}
-	pt = &ParsedFetchTask{Method: ji[0], URL: ji[1]}
-	if lenFetchTask == 4 {
-		pt.Headers = ji[2]
-		pt.Body = ji[3]
-	}
-	return
 }
 
 /* Клиент просит сервис выполнить http запрос к некому ресурсу. В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.
