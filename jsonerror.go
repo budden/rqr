@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 
 	"github.com/budden/rqr/pkg/errorcodes"
 )
@@ -27,13 +28,22 @@ func (je *errorWithCode) Error() string {
 // jsonFetchTask type expresses the fact that fetchTask must be a JSON array
 type jsonFetchTask []string
 
+// https://golang.org/doc/faq#nil_error recommends to always return error to avoid confusion
+// We do prefer to return typed error instead of error because it adds more static typing.
+// Maybe it is wrong in terms of performance... For that we could create a sort of
+// isZeroError<T> for types we want.
+func isZeroError(err error) bool {
+	return (err == nil || reflect.ValueOf(err) == reflect.Zero(reflect.TypeOf(err)))
+}
+
 func reportFetchTaskErrorToClientIf(err error, w http.ResponseWriter) (doReturn bool) {
-	if err == nil {
+	if isZeroError(err) {
 		return
 	}
 	doReturn = true
 	w.WriteHeader(http.StatusBadRequest)
-	if je, ok := err.(*errorWithCode); ok {
+	// here "&& je != nil" handles nil_error case
+	if je, ok := err.(*errorWithCode); ok && je != nil {
 		// Let's add a textual representation of a error code.
 		errorAndStringCode := []interface{}{je.Code.String(), je}
 		encoder := json.NewEncoder(w)
