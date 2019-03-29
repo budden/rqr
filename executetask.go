@@ -8,7 +8,7 @@ import (
 	"github.com/budden/rqr/pkg/errorcodes"
 )
 
-func executeFetchTask(pt *ParsedFetchTask) (et *ExecutedFetchTask, err *errorWithCode) {
+func executeFetchTask(pt *ParsedFetchTask) (et *ExecutedFetchTask, err ErrorWithCode) {
 	var b bytes.Buffer
 	request, err1 := http.NewRequest(pt.Method, pt.URL, &b)
 	if err1 != nil {

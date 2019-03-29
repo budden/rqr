@@ -26,7 +26,7 @@ func getFetchTask(iString string) (t *FetchTask, ok bool) {
 	return
 }
 
-func eraseFetchTask(iString string) (err *errorWithCode) {
+func eraseFetchTask(iString string) (err ErrorWithCode) {
 	t, ok := fetchTaskStorage[iString]
 	_ = t
 	if !ok {
