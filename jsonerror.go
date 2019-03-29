@@ -11,11 +11,11 @@ import (
 
 // errorWithCode is an error which is returned to the client in JSON format
 type errorWithCode struct {
-	Code    errorcodes.TaskErrorCode
+	Code    errorcodes.FetchTaskErrorCode
 	Message string
 }
 
-func newErrorWithCode(Code errorcodes.TaskErrorCode, format string, args ...interface{}) *errorWithCode {
+func newErrorWithCode(Code errorcodes.FetchTaskErrorCode, format string, args ...interface{}) *errorWithCode {
 	return &errorWithCode{Code: Code, Message: fmt.Sprintf(format, args...)}
 }
 
@@ -24,10 +24,10 @@ func (je *errorWithCode) Error() string {
 	return je.Message
 }
 
-// jsonTask type expresses the fact that task must be a JSON array
-type jsonTask []string
+// jsonFetchTask type expresses the fact that fetchTask must be a JSON array
+type jsonFetchTask []string
 
-func reportTaskErrorToClientIf(err error, w http.ResponseWriter) (doReturn bool) {
+func reportFetchTaskErrorToClientIf(err error, w http.ResponseWriter) (doReturn bool) {
 	if err == nil {
 		return
 	}

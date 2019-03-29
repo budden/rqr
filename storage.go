@@ -9,40 +9,40 @@ import (
 var queryID = big.NewInt(0)
 var one = big.NewInt(1)
 
-var taskStorage map[string]*Task
+var fetchTaskStorage map[string]*FetchTask
 
-func saveTask(pt *ParsedTask, et *ExecutedTask) (t *Task) {
+func saveFetchTask(pt *ParsedFetchTask, et *ExecutedFetchTask) (t *FetchTask) {
 	// FIXME will the map be of size 1?
 	queryID.Add(queryID, one)
 	iString := queryID.String()
-	taskStorage[iString] = &Task{ID: iString, pt: pt, et: et}
+	fetchTaskStorage[iString] = &FetchTask{ID: iString, pt: pt, et: et}
 	return
 }
 
-func getTask(iString string) (t *Task, ok bool) {
-	t, ok = taskStorage[iString]
+func getFetchTask(iString string) (t *FetchTask, ok bool) {
+	t, ok = fetchTaskStorage[iString]
 	return
 }
 
-func eraseTask(iString string) (err *errorWithCode) {
-	t, ok := taskStorage[iString]
+func eraseFetchTask(iString string) (err *errorWithCode) {
+	t, ok := fetchTaskStorage[iString]
 	_ = t
 	if !ok {
-		err = newErrorWithCode(errorcodes.NoTaskToErase, "Task «%s» not found", iString)
+		err = newErrorWithCode(errorcodes.NoFetchTaskToErase, "FetchTask «%s» not found", iString)
 		return
 	}
-	delete(taskStorage, iString)
+	delete(fetchTaskStorage, iString)
 	return
 }
 
 // It's really a shame to copy the entire contents of map to array,
 // but, if we consider a possible use in a concurrent environment,
 // it may turn out to be not so bad. And we only copy pointers
-func allTasks() []*Task {
+func allFetchTasks() []*FetchTask {
 	// pre-initialize the result
-	result := make([]*Task, len(taskStorage))
+	result := make([]*FetchTask, len(fetchTaskStorage))
 	i := 0
-	for _, v := range taskStorage {
+	for _, v := range fetchTaskStorage {
 		result[i] = v
 		i++
 	}

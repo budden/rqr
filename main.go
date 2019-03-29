@@ -1,6 +1,6 @@
 package main
 
-// просьба = task
+// просьба = fetchTask
 
 import (
 	"encoding/json"
@@ -19,8 +19,8 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 <body>
 <h1>Requester service.</h1>
 <ul>
-<li>Use POST /taskadd json urlencoded to add a request</li>
-<li>Use POST /taskdel?id=requestId to delete a request</li>
+<li>Use POST /fetchTaskadd json urlencoded to add a request</li>
+<li>Use POST /fetchTaskdel?id=requestId to delete a request</li>
 </body>
 </html>`)
 }
@@ -28,44 +28,44 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 func main() {
 	// FIXME disallow sub-urls for /
 	http.HandleFunc("/", handleRoot)
-	http.HandleFunc("/taskadd", handleRequestAdd)
+	http.HandleFunc("/fetchTaskadd", handleRequestAdd)
 	log.Fatal(http.ListenAndServe(":8086", nil))
 }
 
 // https://stackoverflow.com/a/15685432/9469533
-// To test, use curl -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/taskadd
+// To test, use curl -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/fetchTaskadd
 // To test error reporting, remove the comma from JSON :)
 func handleRequestAdd(w http.ResponseWriter, req *http.Request) {
-	pt, err := convertJSONTaskToParsedTask(req)
-	if reportTaskErrorToClientIf(err, w) {
+	pt, err := convertJSONFetchTaskToParsedFetchTask(req)
+	if reportFetchTaskErrorToClientIf(err, w) {
 		return
 	}
-	et, err1 := executeTask(pt)
-	if reportTaskErrorToClientIf(err1, w) {
+	et, err1 := executeFetchTask(pt)
+	if reportFetchTaskErrorToClientIf(err1, w) {
 		return
 	}
-	task := saveTask(pt, et)
-	fmt.Println(task)
+	fetchTask := saveFetchTask(pt, et)
+	fmt.Println(fetchTask)
 }
 
-func convertJSONTaskToParsedTask(req *http.Request) (pt *ParsedTask, err error) {
+func convertJSONFetchTaskToParsedFetchTask(req *http.Request) (pt *ParsedFetchTask, err error) {
 	decoder := json.NewDecoder(req.Body)
-	ji := jsonTask{}
+	ji := jsonFetchTask{}
 	err = decoder.Decode(&ji)
 	// this is not an efficient way to check errors, but it saves lines of code :)
 
 	if err != nil {
-		err = newErrorWithCode(errorcodes.FailedToParsetaskJSON, "Failed to parse request JSON data. Error is %#v", err)
+		err = newErrorWithCode(errorcodes.FailedToParsefetchTaskJSON, "Failed to parse request JSON data. Error is %v", err)
 		return
 	}
-	lenTask := len(ji)
-	if lenTask != 2 && lenTask != 4 {
-		err = newErrorWithCode(errorcodes.FailedToParsetaskJSON,
-			"JSON task must be of the form [method, address] or of the form [method, address, headers, body]")
+	lenFetchTask := len(ji)
+	if lenFetchTask != 2 && lenFetchTask != 4 {
+		err = newErrorWithCode(errorcodes.FailedToParsefetchTaskJSON,
+			"JSON fetchTask must be of the form [method, address] or of the form [method, address, headers, body]")
 		return
 	}
-	pt = &ParsedTask{Method: ji[0], URL: ji[1]}
-	if lenTask == 4 {
+	pt = &ParsedFetchTask{Method: ji[0], URL: ji[1]}
+	if lenFetchTask == 4 {
 		pt.Headers = ji[2]
 		pt.Body = ji[3]
 	}
@@ -75,5 +75,5 @@ func convertJSONTaskToParsedTask(req *http.Request) (pt *ParsedTask, err error) 
 /* Клиент просит сервис выполнить http запрос к некому ресурсу. В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.
 Сервис выполняет запрос из просьбы и в качестве ответа клиенту возвращает json объект с полями {сгенерированный id запроса, http статус, заголовки, длинна ответа}.
 Список просьб должен сохраняться на сервере, например в map.
-Выше описана операция создания просьбы (FetchTask). Предусмотреть ещё операции получения всех существующих просьб (опционально постранично), операция удаления просьбы по id.
+Выше описана операция создания просьбы (FetchFetchTask). Предусмотреть ещё операции получения всех существующих просьб (опционально постранично), операция удаления просьбы по id.
 Задача предполагает, что кандидат покажет знание перечисленных выше пунктов за исключением, может быть, goroutine/chan/sync.Mutex. Так же мы хотели бы увидеть код приближённый к продакшн версии с понятными наименованиями переменных и http route-ов. Если кандидат уверен в своих силах, для выполнения просьб можно реализовать worker на goroutine, который бы получал задания из канала, выполнял их и безопасно в смысле многопоточности, сохранял результаты. */
