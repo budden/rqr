@@ -12,6 +12,7 @@ func main() {
 	// FIXME disallow sub-urls for /
 	http.HandleFunc("/", handleRoot)
 	http.HandleFunc("/fetchtaskadd", handleFetchTaskAdd)
+	http.HandleFunc("/fetchtasklist", handleFetchTaskList)
 	log.Fatal(http.ListenAndServe(":8086", nil))
 }
 
@@ -29,6 +30,10 @@ func handleRoot(w http.ResponseWriter, req *http.Request) {
 <li>Use POST /fetchTaskdel?id=requestId to delete a request</li>
 </body>
 </html>`)
+}
+
+func handleFetchTaskList(w http.ResponseWriter, req *http.Request) {
+
 }
 
 /* Клиент просит сервис выполнить http запрос к некому ресурсу. В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.

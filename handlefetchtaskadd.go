@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/budden/rqr/pkg/errorcodes"
@@ -20,8 +20,19 @@ func handleFetchTaskAdd(w http.ResponseWriter, req *http.Request) {
 	if reportFetchTaskErrorToClientIf(err1, w) {
 		return
 	}
-	fetchTask := saveFetchTask(pt, et)
-	fmt.Println(fetchTask)
+	ft := saveFetchTask(pt, et)          // no expected errors here
+	ftJSON := convertFetchTaskToJSON(ft) // no expected errors here
+	sendFetchTask(w, ftJSON)             // errors are handled inside
+}
+
+func sendFetchTask(w http.ResponseWriter, ftJSON *FetchTaskAsJSON) {
+	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK)
+	encoder := json.NewEncoder(w)
+	err := encoder.Encode(ftJSON)
+	if err != nil {
+		log.Printf("Failed to encode response to json, respons is %+v, error is %v", ftJSON, err)
+	}
 }
 
 func convertJSONFetchTaskToParsedFetchTask(req *http.Request) (pt *ParsedFetchTask, err error) {
