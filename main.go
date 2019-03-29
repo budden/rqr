@@ -34,6 +34,7 @@ func main() {
 
 // https://stackoverflow.com/a/15685432/9469533
 // To test, use curl -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/taskadd
+// To test error reporting, remove the comma from JSON :)
 func handleRequestAdd(w http.ResponseWriter, req *http.Request) {
 	pt, err := convertJSONTaskToParsedTask(req)
 	if reportTaskErrorToClientIf(err, w) {
