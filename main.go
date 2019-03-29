@@ -8,27 +8,39 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/budden/rqr/pkg/errorcodes"
 )
 
-func handleRoot(w http.ResponseWriter, _ *http.Request) {
+func handleRoot(w http.ResponseWriter, req *http.Request) {
+	if return404IfExtraURLChars("/", w, req) {
+		return
+	}
 	io.WriteString(w, `
 <html>
 <body><title>Requester</title>
 <body>
 <h1>Requester service.</h1>
 <ul>
-<li>Use POST /fetchTaskadd json urlencoded to add a request</li>
+<li>Use POST /fetchtaskadd json urlencoded to add a request</li>
 <li>Use POST /fetchTaskdel?id=requestId to delete a request</li>
 </body>
 </html>`)
 }
 
+func return404IfExtraURLChars(path string, w http.ResponseWriter, req *http.Request) (doReturn bool) {
+	if strings.TrimPrefix(req.URL.Path, path) != "" {
+		w.WriteHeader(http.StatusNotFound)
+		doReturn = true
+	}
+	return
+}
+
 func main() {
 	// FIXME disallow sub-urls for /
 	http.HandleFunc("/", handleRoot)
-	http.HandleFunc("/fetchTaskadd", handleRequestAdd)
+	http.HandleFunc("/fetchtaskadd", handleRequestAdd)
 	log.Fatal(http.ListenAndServe(":8086", nil))
 }
 
