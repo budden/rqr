@@ -13,8 +13,10 @@ var fetchTaskStorage = map[string]*FetchTask{}
 
 func saveFetchTask(pt *ParsedFetchTask, et *ExecutedFetchTask) (t *FetchTask) {
 	queryID.Add(queryID, one)
+	thisID := &big.Int{}
+	thisID.Set(queryID)
 	iString := queryID.String()
-	t = &FetchTask{ID: iString, pt: pt, et: et}
+	t = &FetchTask{ID: iString, IDn: thisID, pt: pt, et: et}
 	fetchTaskStorage[iString] = t
 	return
 }

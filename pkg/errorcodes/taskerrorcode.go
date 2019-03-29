@@ -19,4 +19,6 @@ const (
 	FailedToSendARequest
 	// FailedToReadRequestBody only has docs due to linter's wimpyness
 	FailedToReadRequestBody
+	// DuplicatedValueInTheForm means that there is more than one parameter with this name
+	DuplicatedValueInTheForm
 )

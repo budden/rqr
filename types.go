@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"math/big"
+	"net/http"
+)
 
 // ParsedFetchTask - это просьба в разобранном виде. Из ТЗ:
 // В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.
@@ -22,9 +25,15 @@ type ExecutedFetchTask struct {
 
 // FetchTask - просьба и результат её выполнения, как она хранится в памяти
 type FetchTask struct {
-	ID string
-	pt *ParsedFetchTask
-	et *ExecutedFetchTask
+	ID  string
+	IDn *big.Int
+	pt  *ParsedFetchTask
+	et  *ExecutedFetchTask
+}
+
+// FetchTaskLessThan Returns true if ft1 is less than ft2 in terms of ID
+func FetchTaskLessThan(ft1, ft2 *FetchTask) bool {
+	return ft1.IDn.Cmp(ft2.IDn) == -1
 }
 
 // FetchTaskAsJSON represents a json format for fetch task when the task is sent

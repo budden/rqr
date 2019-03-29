@@ -13,11 +13,12 @@ func main() {
 	http.HandleFunc("/", handleRoot)
 	http.HandleFunc("/fetchtaskadd", handleFetchTaskAdd)
 	http.HandleFunc("/fetchtasklist", handleFetchTaskList)
+	http.HandleFunc("/fetchtaskget", handleFetchTaskGet)
 	log.Fatal(http.ListenAndServe(":8086", nil))
 }
 
 func handleRoot(w http.ResponseWriter, req *http.Request) {
-	if return404IfExtraURLChars("/", w, req) {
+	if return404IfExtraURLChars("/", w, req) || return500IfNotMethod("POST", w, req) {
 		return
 	}
 	io.WriteString(w, `
@@ -28,12 +29,9 @@ func handleRoot(w http.ResponseWriter, req *http.Request) {
 <ul>
 <li>Use POST /fetchtaskadd json urlencoded to add a request</li>
 <li>Use POST /fetchTaskdel?id=requestId to delete a request</li>
+<li>Use GET /fetchtasklist?offset=N&limit=N to get a list (both params are optional)</li>
 </body>
 </html>`)
-}
-
-func handleFetchTaskList(w http.ResponseWriter, req *http.Request) {
-
 }
 
 /* Клиент просит сервис выполнить http запрос к некому ресурсу. В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.
