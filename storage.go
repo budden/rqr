@@ -9,13 +9,13 @@ import (
 var queryID = big.NewInt(0)
 var one = big.NewInt(1)
 
-var fetchTaskStorage map[string]*FetchTask
+var fetchTaskStorage = map[string]*FetchTask{}
 
 func saveFetchTask(pt *ParsedFetchTask, et *ExecutedFetchTask) (t *FetchTask) {
-	// FIXME will the map be of size 1?
 	queryID.Add(queryID, one)
 	iString := queryID.String()
-	fetchTaskStorage[iString] = &FetchTask{ID: iString, pt: pt, et: et}
+	t = &FetchTask{ID: iString, pt: pt, et: et}
+	fetchTaskStorage[iString] = t
 	return
 }
 
