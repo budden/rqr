@@ -19,6 +19,8 @@ const (
 	FailedToSendARequest
 	// FailedToReadRequestBody only has docs due to linter's wimpyness
 	FailedToReadRequestBody
-	// DuplicatedValueInTheForm means that there is more than one parameter with this name
-	DuplicatedValueInTheForm
+	// DuplicateParamInTheForm means that there is more than one parameter with this name
+	DuplicateParamInTheForm
+	// IncorrectIDFormat is signaled if fetchtaskget is invoked for a non-numeric ID
+	IncorrectIDFormat
 )

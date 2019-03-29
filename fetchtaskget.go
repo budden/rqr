@@ -8,6 +8,7 @@ import (
 )
 
 // fetchtaskget, fetchtasklist
+
 func handleFetchTaskList(w http.ResponseWriter, req *http.Request) {
 	if return500IfNotMethod("GET", w, req) {
 		return
@@ -66,5 +67,16 @@ func handleFetchTaskGet(w http.ResponseWriter, req *http.Request) {
 	if return500IfNotMethod("GET", w, req) {
 		return
 	}
-	return
+	_, ft, doReturn := getFetchTaskFromLastURLSegment(fetchTaskGetURL, w, req)
+	if doReturn {
+		return
+	}
+	encoder := json.NewEncoder(w)
+	ftj := convertFetchTaskToJSON(ft)
+	err := encoder.Encode(ftj)
+	if err != nil {
+		// FIXME: It is too late to set HTTP status. Should we serialize to a string and then
+		// write a string?
+		log.Printf("Failed to encode results, error is %#v", err)
+	}
 }

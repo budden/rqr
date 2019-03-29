@@ -8,12 +8,18 @@ import (
 	"net/http"
 )
 
+const (
+	fetchTaskGetURL    = "/fetchtaskget/"
+	fetchTaskDeleteURL = "/fetchtaskdelete/"
+)
+
 func main() {
 	// FIXME disallow sub-urls for /
 	http.HandleFunc("/", handleRoot)
 	http.HandleFunc("/fetchtaskadd", handleFetchTaskAdd)
 	http.HandleFunc("/fetchtasklist", handleFetchTaskList)
-	http.HandleFunc("/fetchtaskget", handleFetchTaskGet)
+	http.HandleFunc(fetchTaskGetURL, handleFetchTaskGet)
+	http.HandleFunc(fetchTaskDeleteURL, handleFetchTaskDelete)
 	log.Fatal(http.ListenAndServe(":8086", nil))
 }
 
@@ -27,8 +33,9 @@ func handleRoot(w http.ResponseWriter, req *http.Request) {
 <body>
 <h1>Requester service.</h1>
 <ul>
-<li>Use POST /fetchtaskadd json urlencoded to add a request</li>
-<li>Use POST /fetchTaskdel?id=requestId to delete a request</li>
+<li>Use POST /fetchtaskadd json urlencoded to add a fetch task</li>
+<li>Use POST /fetchtaskget/ID to get a fetch task</li>
+<li>Use POST /fetchtaskdel/ID to delete a fetch task</li>
 <li>Use GET /fetchtasklist?offset=N&limit=N to get a list (both params are optional)</li>
 </body>
 </html>`)

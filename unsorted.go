@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -37,7 +38,7 @@ func GetZeroOrOneNonNegativeIntFormValueOrReportAnError(key string, w http.Respo
 		return
 	}
 	if len(values) > 1 {
-		err := newErrorWithCode(errorcodes.DuplicatedValueInTheForm, "Query parameter «%s» is duplicated", key)
+		err := newErrorWithCode(errorcodes.DuplicateParamInTheForm, "Query parameter «%s» is duplicated", key)
 		reportFetchTaskErrorToClientIf(err, w)
 		doReturn = true
 		return
@@ -58,5 +59,32 @@ func GetZeroOrOneNonNegativeIntFormValueOrReportAnError(key string, w http.Respo
 		doReturn = true
 		return
 	}
+	return
+}
+
+// this one is shared between fetchtaskget and fetchtaskdelete, so it is
+// handy to pack into the function
+func getFetchTaskFromLastURLSegment(URLBase string, w http.ResponseWriter, req *http.Request) (
+	ID string, ft *FetchTask, doReturn bool) {
+	doReturn = true
+	ID = strings.TrimPrefix(req.URL.Path, URLBase)
+	matched, err := regexp.Match("^[0-9]+$", []byte(ID))
+	if reportFetchTaskErrorToClientIf(err, w) {
+		ID = ""
+		return
+	}
+	if !matched {
+		err = newErrorWithCode(errorcodes.IncorrectIDFormat, "Incorrect id format")
+		reportFetchTaskErrorToClientIf(err, w)
+		ID = ""
+		return
+	}
+	ft, ok := getFetchTask(ID)
+	if !ok {
+		ID = ""
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	doReturn = false
 	return
 }
