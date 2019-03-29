@@ -55,7 +55,7 @@ func convertJSONFetchTaskToParsedFetchTask(req *http.Request) (pt *ParsedFetchTa
 	// this is not an efficient way to check errors, but it saves lines of code :)
 
 	if err != nil {
-		err = newErrorWithCode(errorcodes.FailedToParsefetchTaskJSON, "Failed to parse request JSON data. Error is %v", err)
+		err = newErrorWithCode(errorcodes.FailedToParsefetchTaskJSON, "Failed to parse request JSON data. Error is %#v", err)
 		return
 	}
 	lenFetchTask := len(ji)
