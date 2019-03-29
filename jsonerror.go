@@ -32,9 +32,12 @@ func reportTaskErrorToClientIf(err error, w http.ResponseWriter) (doReturn bool)
 		return
 	}
 	doReturn = true
+	w.WriteHeader(http.StatusBadRequest)
 	if je, ok := err.(*errorWithCode); ok {
+		// Let's add a textual representation of a error code.
+		errorAndStringCode := []interface{}{je.Code.String(), je}
 		encoder := json.NewEncoder(w)
-		err := encoder.Encode(je)
+		err := encoder.Encode(errorAndStringCode)
 		if err != nil {
 			log.Printf("Error while sending error response to a client: %#v\n", err)
 		}
