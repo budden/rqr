@@ -3,6 +3,8 @@ package main
 import (
 	"math/big"
 	"net/http"
+
+	"github.com/budden/rqr/pkg/errorcodes"
 )
 
 // ParsedFetchTask - это просьба в разобранном виде. Из ТЗ:
@@ -56,4 +58,13 @@ func convertFetchTaskToJSON(ft *FetchTask) *FetchTaskAsJSON {
 		Headers:    headers,
 		BodyLength: et.Bodylength}
 
+}
+
+// JSONTopLevel is a json format for all well-formed responses.
+// Responses which are broken while serializing json may send an ill-formed JSON.
+// Instead, they write to log.
+type JSONTopLevel struct {
+	Status     errorcodes.FetchTaskErrorCode
+	Statustext string
+	Contents   interface{}
 }

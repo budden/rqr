@@ -10,7 +10,8 @@ import (
 // fetchtaskget, fetchtasklist
 
 func handleFetchTaskList(w http.ResponseWriter, req *http.Request) {
-	if return500IfNotMethod("GET", w, req) {
+	SetJSONContentType(w)
+	if failIfMethodIsNot("GET", w, req) {
 		return
 	}
 	unsorted := allFetchTasks()
@@ -20,7 +21,7 @@ func handleFetchTaskList(w http.ResponseWriter, req *http.Request) {
 		return FetchTaskLessThan(sorted[i], sorted[j])
 	})
 	err := req.ParseForm()
-	if reportFetchTaskErrorToClientIf(err, w) {
+	if reportFetchTaskErrorToClientIf(err, w, req) {
 		return
 	}
 	offset, _, doReturn1 := GetZeroOrOneNonNegativeIntFormValueOrReportAnError("offset", w, req)
@@ -64,7 +65,8 @@ func startAndLimitToBegAndEnd(start, limit, length int) (beg, end int) {
 }
 
 func handleFetchTaskGet(w http.ResponseWriter, req *http.Request) {
-	if return500IfNotMethod("GET", w, req) {
+	SetJSONContentType(w)
+	if failIfMethodIsNot("GET", w, req) {
 		return
 	}
 	_, ft, doReturn := getFetchTaskFromLastURLSegment(fetchTaskGetURL, w, req)

@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/budden/rqr/pkg/errorcodes"
@@ -49,23 +47,17 @@ func newErrorWithCode(ECode errorcodes.FetchTaskErrorCode, format string, args .
 // jsonFetchTask type expresses the fact that fetchTask must be a JSON array
 type jsonFetchTask []string
 
-func reportFetchTaskErrorToClientIf(err error, w http.ResponseWriter) (doReturn bool) {
+func reportFetchTaskErrorToClientIf(err error, w http.ResponseWriter, req *http.Request) (
+	doReturn bool) {
 	if err == nil {
 		return
 	}
 	doReturn = true
-	//w.WriteHeader(http.StatusBadRequest)
-	var errorAndStringCode []interface{}
+	status := errorcodes.UnknownError
 	if je, ok := err.(ErrorWithCode); ok {
-		// Let's add a textual representation of a error code.
-		errorAndStringCode = []interface{}{je.Code().String(), je.Data()}
-	} else {
-		errorAndStringCode = []interface{}{"Unknown error", err.Error()}
+		status = je.Code()
 	}
-	encoder := json.NewEncoder(w)
-	err1 := encoder.Encode(errorAndStringCode)
-	if err1 != nil {
-		log.Printf("Error while sending error response to a client: %#v\n", err1)
-	}
+	// doReturn is alreay true, no need to assign
+	WriteReplyToResponseAsJSON(w, req, status, err.Error())
 	return
 }

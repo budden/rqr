@@ -3,7 +3,9 @@ package main
 // When the architecture is not perfect (yet), we put homeless things here
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -28,6 +30,42 @@ func return500IfNotMethod(method string, w http.ResponseWriter, req *http.Reques
 	return
 }
 
+func failIfMethodIsNot(method string, w http.ResponseWriter, req *http.Request) (doReturn bool) {
+	if req.Method != method {
+		WriteReplyToResponseAsJSON(w, req, errorcodes.IncorrectRequestMethod, nil)
+		doReturn = true
+	}
+	return
+}
+
+// SetJSONContentType sets Content-Type application/json
+func SetJSONContentType(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+}
+
+// WriteReplyToResponseAsJSON handles all errors
+func WriteReplyToResponseAsJSON(
+	w http.ResponseWriter,
+	req *http.Request,
+	status errorcodes.FetchTaskErrorCode,
+	contents interface{}) (doReturn bool) {
+	dataToEncode := JSONTopLevel{Status: status, Statustext: status.String(), Contents: contents}
+	encoder := json.NewEncoder(w)
+	err := encoder.Encode(dataToEncode)
+	if err != nil {
+		// we don't put the data to the log. Data can be huge and it can be broken. Instead, we put a
+		// truncated URL
+		url := req.URL.Path
+		if len(url) > 256 {
+			url = url[0:(256-3)] + "..."
+		}
+		log.Printf("Failed to encode results, URL is «%v», status is %v, error is %#v",
+			url, status.String(), err)
+		doReturn = true
+	}
+	return
+}
+
 // GetZeroOrOneNonNegativeIntFormValueOrReportAnError extracts an integer value from the req.Form.
 // req.ParseForm() must be called before this one. If there are none, ok == nil and value = 0
 // If there are more than one, responses with http.StatusBadRequest. In case of error, sets doReturn to true.
@@ -39,7 +77,7 @@ func GetZeroOrOneNonNegativeIntFormValueOrReportAnError(key string, w http.Respo
 	}
 	if len(values) > 1 {
 		err := newErrorWithCode(errorcodes.DuplicateParamInTheForm, "Query parameter «%s» is duplicated", key)
-		reportFetchTaskErrorToClientIf(err, w)
+		reportFetchTaskErrorToClientIf(err, w, req)
 		doReturn = true
 		return
 	}
@@ -49,13 +87,13 @@ func GetZeroOrOneNonNegativeIntFormValueOrReportAnError(key string, w http.Respo
 	}
 	var err error
 	value, err = strconv.Atoi(valueS)
-	if reportFetchTaskErrorToClientIf(err, w) {
+	if reportFetchTaskErrorToClientIf(err, w, req) {
 		doReturn = true
 		return
 	}
 	if value < 0 {
 		err := fmt.Errorf("Negative value of parameter «%s» is not allowed", key)
-		reportFetchTaskErrorToClientIf(err, w)
+		reportFetchTaskErrorToClientIf(err, w, req)
 		doReturn = true
 		return
 	}
@@ -69,13 +107,13 @@ func getFetchTaskFromLastURLSegment(URLBase string, w http.ResponseWriter, req *
 	doReturn = true
 	ID = strings.TrimPrefix(req.URL.Path, URLBase)
 	matched, err := regexp.Match("^[0-9]+$", []byte(ID))
-	if reportFetchTaskErrorToClientIf(err, w) {
+	if reportFetchTaskErrorToClientIf(err, w, req) {
 		ID = ""
 		return
 	}
 	if !matched {
 		err = newErrorWithCode(errorcodes.IncorrectIDFormat, "Incorrect id format")
-		reportFetchTaskErrorToClientIf(err, w)
+		reportFetchTaskErrorToClientIf(err, w, req)
 		ID = ""
 		return
 	}

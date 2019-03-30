@@ -12,15 +12,16 @@ import (
 // To test, use curl -i -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/fetchTaskadd
 // To test error reporting, remove the comma from JSON :)
 func handleFetchTaskAdd(w http.ResponseWriter, req *http.Request) {
-	if return500IfNotMethod("POST", w, req) {
+	SetJSONContentType(w)
+	if failIfMethodIsNot("POST", w, req) {
 		return
 	}
 	pt, err := convertJSONFetchTaskToParsedFetchTask(req)
-	if reportFetchTaskErrorToClientIf(err, w) {
+	if reportFetchTaskErrorToClientIf(err, w, req) {
 		return
 	}
 	et, err1 := executeFetchTask(pt)
-	if reportFetchTaskErrorToClientIf(err1, w) {
+	if reportFetchTaskErrorToClientIf(err1, w, req) {
 		return
 	}
 	ft := saveFetchTask(pt, et)          // no expected errors here
@@ -29,14 +30,11 @@ func handleFetchTaskAdd(w http.ResponseWriter, req *http.Request) {
 }
 
 func sendFetchTask(w http.ResponseWriter, ftJSON *FetchTaskAsJSON) {
-	// we call w.WriteHeader everywhere to get a warning in case of multiple resonse.WriteHeader calls.
-	// unfortunately there is no error to check.
-	w.WriteHeader(http.StatusOK)
 	encoder := json.NewEncoder(w)
 	err := encoder.Encode(ftJSON)
 	if err != nil {
-		// to late to change status
-		log.Printf("Failed to encode response to json, respons is %+v, error is %v", ftJSON, err)
+		// request is broken
+		log.Printf("Failed to encode response to json, response is %+v, error is %v", ftJSON, err)
 	}
 }
 

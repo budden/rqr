@@ -7,8 +7,8 @@ package errorcodes
 type FetchTaskErrorCode int
 
 const (
-	// NoError means no error, obviously
-	NoError FetchTaskErrorCode = iota
+	// OK means no error, obviously
+	OK FetchTaskErrorCode = iota
 	// FailedToParsefetchTaskJSON means an incorrect json in request
 	FailedToParsefetchTaskJSON
 	// NoFetchTaskToErase means an attempt to delete a non-existent fetchTask
@@ -23,4 +23,8 @@ const (
 	DuplicateParamInTheForm
 	// IncorrectIDFormat is signaled if fetchtaskget is invoked for a non-numeric ID
 	IncorrectIDFormat
+	// IncorrectRequestMethod means GET instead of POST or vice versa
+	IncorrectRequestMethod
+	// UnknownError ...
+	UnknownError
 )

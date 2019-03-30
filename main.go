@@ -14,8 +14,9 @@ const (
 )
 
 func main() {
-	// FIXME disallow sub-urls for /
+	// returns html
 	http.HandleFunc("/", handleRoot)
+	// all other endpoints return application/json
 	http.HandleFunc("/fetchtaskadd", handleFetchTaskAdd)
 	http.HandleFunc("/fetchtasklist", handleFetchTaskList)
 	http.HandleFunc(fetchTaskGetURL, handleFetchTaskGet)

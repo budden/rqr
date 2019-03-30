@@ -5,7 +5,8 @@ import (
 )
 
 func handleFetchTaskDelete(w http.ResponseWriter, req *http.Request) {
-	if return500IfNotMethod("POST", w, req) {
+	SetJSONContentType(w)
+	if failIfMethodIsNot("POST", w, req) {
 		return
 	}
 	ID, _, doReturn := getFetchTaskFromLastURLSegment(fetchTaskDeleteURL, w, req)
@@ -13,8 +14,7 @@ func handleFetchTaskDelete(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	err := eraseFetchTask(ID)
-	if reportFetchTaskErrorToClientIf(err, w) {
+	if reportFetchTaskErrorToClientIf(err, w, req) {
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
