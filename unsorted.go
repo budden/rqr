@@ -17,7 +17,7 @@ import (
 
 func checkNoExtraURLChars(path string, w http.ResponseWriter, req *http.Request) (wasError bool) {
 	if strings.TrimPrefix(req.URL.Path, path) != "" {
-		WriteReplyToResponseAsJSON(w, req, errorcodes.IncorrectURL, "POST to / to obtain a help on correct URLs")
+		WriteReplyToResponseAsJSON(w, req, errorcodes.IncorrectURL, "GET / to obtain a help on correct URLs")
 		wasError = true
 	}
 	return
@@ -25,7 +25,7 @@ func checkNoExtraURLChars(path string, w http.ResponseWriter, req *http.Request)
 
 func checkHTTPMethod(method string, w http.ResponseWriter, req *http.Request) (wasError bool) {
 	if req.Method != method {
-		WriteReplyToResponseAsJSON(w, req, errorcodes.IncorrectRequestMethod, "POST to / to obtain a help on correct URLs")
+		WriteReplyToResponseAsJSON(w, req, errorcodes.IncorrectRequestMethod, "GET / to obtain a help on correct URLs")
 		wasError = true
 	}
 	return

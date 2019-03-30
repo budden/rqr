@@ -15,9 +15,7 @@ const (
 )
 
 func main() {
-	// returns html
 	http.HandleFunc("/", handleRoot)
-	// all other endpoints return application/json
 	http.HandleFunc("/fetchtaskadd", handleFetchTaskAdd)
 	http.HandleFunc("/fetchtasklist", handleFetchTaskList)
 	http.HandleFunc(fetchTaskGetURL, handleFetchTaskGet)
@@ -32,9 +30,10 @@ func handleRoot(w http.ResponseWriter, req *http.Request) {
 	WriteReplyToResponseAsJSON(w, req, errorcodes.OK, []string{
 		"Requester service.",
 		"Use POST /fetchtaskadd json urlencoded to add a fetch task",
-		"Use POST /fetchtaskget/ID to get a fetch task",
-		"Use POST /fetchtaskdelete/ID to delete a fetch task",
+		"Use GET /fetchtaskget/ID to get a fetch task",
 		"Use GET /fetchtasklist?offset=N&limit=N to get a list (both params are optional)",
+		"Use POST /fetchtaskdelete/ID to delete a fetch task",
+		"Use GET / to obtain this help",
 		"Replies are always with Content-type = application/json"})
 	return
 }

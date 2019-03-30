@@ -22,7 +22,7 @@ https://github.com/budden/pgweb/blob/issue-281-by-budden-3/pkg/cli/appserver_tes
 cd $GOPATH/github.com/budden/rqr
 go get ./...
 go generate ./...
-go run main.go
+go run .
 ```
 
 В отдельном терминале выполнять команды:
@@ -106,7 +106,7 @@ curl -X POST http://localhost:8086/fetchtaskdelete/2
 curl -X POST http://localhost:8086/non-existent
 ```
 
-Ответ: `{"Status":10,"Statustext":"IncorrectURL","Contents":"POST to / to obtain a help on correct URLs"}`
+Ответ: `{"Status":10,"Statustext":"IncorrectURL","Contents":"GET / to obtain a help on correct URLs"}`
 
 Получение справки:
 ```
