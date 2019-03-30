@@ -12,7 +12,7 @@ import (
 // To test error reporting, remove the comma from JSON :)
 func handleFetchTaskAdd(w http.ResponseWriter, req *http.Request) {
 	SetJSONContentType(w)
-	if failIfMethodIsNot("POST", w, req) {
+	if checkHTTPMethod("POST", w, req) {
 		return
 	}
 	pt, err := convertJSONFetchTaskToParsedFetchTask(req)

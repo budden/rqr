@@ -8,7 +8,7 @@ import (
 
 func handleFetchTaskGet(w http.ResponseWriter, req *http.Request) {
 	SetJSONContentType(w)
-	if failIfMethodIsNot("GET", w, req) {
+	if checkHTTPMethod("GET", w, req) {
 		return
 	}
 	_, ft, wasError := getFetchTaskFromLastURLSegment(fetchTaskGetURL, w, req)

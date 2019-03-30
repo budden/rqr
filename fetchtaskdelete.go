@@ -8,7 +8,7 @@ import (
 
 func handleFetchTaskDelete(w http.ResponseWriter, req *http.Request) {
 	SetJSONContentType(w)
-	if failIfMethodIsNot("POST", w, req) {
+	if checkHTTPMethod("POST", w, req) {
 		return
 	}
 	ID, _, wasError := getFetchTaskFromLastURLSegment(fetchTaskDeleteURL, w, req)

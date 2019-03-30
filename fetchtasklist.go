@@ -9,7 +9,7 @@ import (
 
 func handleFetchTaskList(w http.ResponseWriter, req *http.Request) {
 	SetJSONContentType(w)
-	if failIfMethodIsNot("GET", w, req) {
+	if checkHTTPMethod("GET", w, req) {
 		return
 	}
 	unsorted := allFetchTasks()
