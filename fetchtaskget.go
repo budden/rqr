@@ -11,8 +11,8 @@ func handleFetchTaskGet(w http.ResponseWriter, req *http.Request) {
 	if failIfMethodIsNot("GET", w, req) {
 		return
 	}
-	_, ft, doReturn := getFetchTaskFromLastURLSegment(fetchTaskGetURL, w, req)
-	if doReturn {
+	_, ft, wasError := getFetchTaskFromLastURLSegment(fetchTaskGetURL, w, req)
+	if wasError {
 		return
 	}
 	ftj := convertFetchTaskToJSON(ft)

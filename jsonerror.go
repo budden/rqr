@@ -48,16 +48,16 @@ func newErrorWithCode(ECode errorcodes.FetchTaskErrorCode, format string, args .
 type jsonFetchTask []string
 
 func reportFetchTaskErrorToClientIf(err error, w http.ResponseWriter, req *http.Request) (
-	doReturn bool) {
+	wasError bool) {
 	if err == nil {
 		return
 	}
-	doReturn = true
+	wasError = true
 	status := errorcodes.UnknownError
 	if je, ok := err.(ErrorWithCode); ok {
 		status = je.Code()
 	}
-	// doReturn is alreay true, no need to assign
+	// wasError is alreay true, no need to assign
 	WriteReplyToResponseAsJSON(w, req, status, err.Error())
 	return
 }

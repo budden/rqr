@@ -38,7 +38,7 @@ func handleFetchTaskList(w http.ResponseWriter, req *http.Request) {
 		records[i] = convertFetchTaskToJSON(task)
 	}
 	result := &FetchTaskListAsJSON{Length: length, Records: records}
-	// no need to analyze doReturn, we're exiting anyways
+	// no need to analyze wasError, we're exiting anyways
 	_ = WriteReplyToResponseAsJSON(w, req, errorcodes.OK, result)
 }
 

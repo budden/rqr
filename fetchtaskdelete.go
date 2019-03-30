@@ -11,8 +11,8 @@ func handleFetchTaskDelete(w http.ResponseWriter, req *http.Request) {
 	if failIfMethodIsNot("POST", w, req) {
 		return
 	}
-	ID, _, doReturn := getFetchTaskFromLastURLSegment(fetchTaskDeleteURL, w, req)
-	if doReturn {
+	ID, _, wasError := getFetchTaskFromLastURLSegment(fetchTaskDeleteURL, w, req)
+	if wasError {
 		return
 	}
 	err := eraseFetchTask(ID)
