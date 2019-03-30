@@ -57,7 +57,12 @@ func convertFetchTaskToJSON(ft *FetchTask) *FetchTaskAsJSON {
 		Httpstatus: et.Httpstatus,
 		Headers:    headers,
 		BodyLength: et.Bodylength}
+}
 
+// FetchTaskListAsJSON is a data format for sending a list of fetchtasks
+type FetchTaskListAsJSON struct {
+	Length  int
+	Records []*FetchTaskAsJSON
 }
 
 // JSONTopLevel is a json format for all well-formed responses.

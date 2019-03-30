@@ -33,12 +33,13 @@ func handleFetchTaskList(w http.ResponseWriter, req *http.Request) {
 	length := len(sorted)
 	beg, end := startAndLimitToBegAndEnd(offset, limit, length)
 	selected := sorted[beg:end]
-	results := make([]*FetchTaskAsJSON, end-beg)
+	records := make([]*FetchTaskAsJSON, end-beg)
 	for i, task := range selected {
-		results[i] = convertFetchTaskToJSON(task)
+		records[i] = convertFetchTaskToJSON(task)
 	}
+	result := &FetchTaskListAsJSON{Length: length, Records: records}
 	// no need to analyze doReturn, we're exiting anyways
-	_ = WriteReplyToResponseAsJSON(w, req, errorcodes.OK, results)
+	_ = WriteReplyToResponseAsJSON(w, req, errorcodes.OK, result)
 }
 
 // for paging
