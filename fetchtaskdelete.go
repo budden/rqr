@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/budden/rqr/pkg/errorcodes"
 )
 
 func handleFetchTaskDelete(w http.ResponseWriter, req *http.Request) {
@@ -17,4 +19,5 @@ func handleFetchTaskDelete(w http.ResponseWriter, req *http.Request) {
 	if reportFetchTaskErrorToClientIf(err, w, req) {
 		return
 	}
+	_ = WriteReplyToResponseAsJSON(w, req, errorcodes.OK, nil)
 }

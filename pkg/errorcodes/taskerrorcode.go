@@ -11,6 +11,8 @@ const (
 	OK FetchTaskErrorCode = iota
 	// FailedToParsefetchTaskJSON means an incorrect json in request
 	FailedToParsefetchTaskJSON
+	// FetchTaskNotFound is for get query with a non-existent ID
+	FetchTaskNotFound
 	// NoFetchTaskToErase means an attempt to delete a non-existent fetchTask
 	NoFetchTaskToErase
 	// FailedToMakeARequest means we were unable to create a request object

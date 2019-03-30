@@ -4,9 +4,9 @@ package errorcodes
 
 import "strconv"
 
-const _FetchTaskErrorCode_name = "NoErrorFailedToParsefetchTaskJSONNoFetchTaskToEraseFailedToMakeARequestFailedToSendARequestFailedToReadRequestBodyDuplicateParamInTheFormIncorrectIDFormat"
+const _FetchTaskErrorCode_name = "OKFailedToParsefetchTaskJSONFetchTaskNotFoundNoFetchTaskToEraseFailedToMakeARequestFailedToSendARequestFailedToReadRequestBodyDuplicateParamInTheFormIncorrectIDFormatIncorrectRequestMethodUnknownError"
 
-var _FetchTaskErrorCode_index = [...]uint8{0, 7, 33, 51, 71, 91, 114, 137, 154}
+var _FetchTaskErrorCode_index = [...]uint8{0, 2, 28, 45, 63, 83, 103, 126, 149, 166, 188, 200}
 
 func (i FetchTaskErrorCode) String() string {
 	if i < 0 || i >= FetchTaskErrorCode(len(_FetchTaskErrorCode_index)-1) {

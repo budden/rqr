@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/budden/rqr/pkg/errorcodes"
+	"github.com/pkg/errors"
 )
 
 func return404IfExtraURLChars(path string, w http.ResponseWriter, req *http.Request) (doReturn bool) {
@@ -107,12 +108,14 @@ func getFetchTaskFromLastURLSegment(URLBase string, w http.ResponseWriter, req *
 	doReturn = true
 	ID = strings.TrimPrefix(req.URL.Path, URLBase)
 	matched, err := regexp.Match("^[0-9]+$", []byte(ID))
-	if reportFetchTaskErrorToClientIf(err, w, req) {
+	if err != nil {
+		err = errors.Wrapf(err, "Error when matching regexp")
+		reportFetchTaskErrorToClientIf(err, w, req)
 		ID = ""
 		return
 	}
 	if !matched {
-		err = newErrorWithCode(errorcodes.IncorrectIDFormat, "Incorrect id format")
+		err = newErrorWithCode(errorcodes.IncorrectIDFormat, "")
 		reportFetchTaskErrorToClientIf(err, w, req)
 		ID = ""
 		return
@@ -120,7 +123,8 @@ func getFetchTaskFromLastURLSegment(URLBase string, w http.ResponseWriter, req *
 	ft, ok := getFetchTask(ID)
 	if !ok {
 		ID = ""
-		w.WriteHeader(http.StatusNotFound)
+		err = newErrorWithCode(errorcodes.FetchTaskNotFound, "")
+		reportFetchTaskErrorToClientIf(err, w, req)
 		return
 	}
 	doReturn = false
