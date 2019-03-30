@@ -11,7 +11,7 @@ https://github.com/budden/pgweb/blob/issue-281-by-budden-3/pkg/cli/appserver_tes
 тестировать приложение с помощью самого себя и позволяет избежать написания сценариев на bash, 
 а воспользоваться встроенной инфраструктурой тестирования для golang.
 
-Мы неформально опишем сценарий e2e тестирования с помощью Curl. 
+В этих же проектах есть и модульные тесты. Мы неформально опишем сценарий e2e тестирования с помощью Curl. 
 
 # Тестовый сценарий
 
@@ -48,7 +48,7 @@ curl -X POST -d "[\"GET\" \"http://google.com/\"" http://localhost:8086/fetchtas
 ```
 curl -X PUT -d "[]" http://localhost:8086/fetchtaskadd
 ```
-Ответ: `{"Status":8,"Statustext":"IncorrectRequestMethod","Contents":null}`
+Ответ: `{"Status":9,"Statustext":"IncorrectRequestMethod","Contents":null}`
 
 Правильный запрос на добавление
 ```
@@ -59,16 +59,7 @@ curl -X POST -d "[\"GET\", \"http://google.com/\"]" http://localhost:8086/fetcht
 {"Status":0,"Statustext":"NoError","Contents":{"ID":"1","Httpstatus":200,"Headers": ...,"BodyLength":14124}}
 ```
 
-Повтор:
-```
-curl -X POST -d "[\"GET\", \"http://google.com/\"]" http://localhost:8086/fetchtaskadd
-```
-Ответ:
-```
-{"Status":0,"Statustext":"NoError","Contents":{"ID":"2","Httpstatus":200,"Headers": ...,"BodyLength":14124}}
-```
-
-Пояснение: в задании не сказано о том, что повторяющиеся идентичные запросы должны браться из кеша. Это можно было бы сделать, но это не обязательно будет правильно (ведь время идёт и содержимое веб-страниц меняется)
+Этот запрос надо повторить ещё два раза, чтобы заполнить базу значениями. В задании не сказано о том, должны ли повторяющиеся идентичные запросы должны браться из кеша. Это можно было бы сделать, но это не обязательно будет правильно (ведь время идёт и содержимое веб-страниц меняется).
 
 Неправильный запрос на получение просьбы
 ```
@@ -86,12 +77,10 @@ curl http://localhost:8086/fetchtaskget/2800
 ```
 curl "http://localhost:8086/fetchtasklist?offset=1m"
 ```
-Ответ: `{"Status":10,"Statustext":"UnknownError","Contents":"strconv.Atoi: parsing \"1m\": invalid syntax"}`
-
-Добавим ещё одну просьбу
-```
-curl -X POST -d "[\"GET\", \"http://ya.ru/\"]" http://localhost:8086/fetchtaskadd
-```
+Ответ: `{"Status":11,"Statustext":"UnknownError","Contents":"strconv.Atoi: parsing \"1m\": invalid syntax"}`
+Здесь есть небольшая недоработка - мы не проверяем, что в запросе нет неверных параметров. Такие параметры
+просто игнорируются. Поэтому запрос с опечатками, например, `/fetchtasklist/offfffset=1`, пройдёт без 
+ошибок, но значение offset будет не 1, а 0 - по умолчанию.
 
 Правильный запрос на получение списка просьб:
 ```
@@ -105,6 +94,24 @@ curl "http://localhost:8086/fetchtasklist?limit=2&offset=1"
 Правильный запрос на удаление просьбы (вообще-то нужно аналогично проверить и неправильный, но мы это уже показали
 в запросе на добавление)
 ```
-curl -i -X POST http://localhost:8086/fetchtaskdelete/2
+curl -X POST http://localhost:8086/fetchtaskdelete/2
 ```
 Ответ: `{"Status":0,"Statustext":"OK","Contents":null}`
+
+Повторяем тот же запрос - теперь это запрос на удаление несуществующей просьбы. Ответ:
+`{"Status":2,"Statustext":"FetchTaskNotFound","Contents":""}`
+
+Неверный URL
+```
+curl -X POST http://localhost:8086/non-existent
+```
+
+Ответ: `{"Status":10,"Statustext":"IncorrectURL","Contents":"POST to / to obtain a help on correct URLs"}`
+
+Получение справки:
+```
+curl http://localhost:8086/
+```
+Ответ: `{"Status":0,"Statustext":"OK","Contents":["Requester service.",...]}`
+
+

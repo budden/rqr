@@ -3,9 +3,10 @@ package main
 // просьба = fetchTask
 
 import (
-	"io"
 	"log"
 	"net/http"
+
+	"github.com/budden/rqr/pkg/errorcodes"
 )
 
 const (
@@ -25,21 +26,17 @@ func main() {
 }
 
 func handleRoot(w http.ResponseWriter, req *http.Request) {
-	if return404IfExtraURLChars("/", w, req) || return500IfNotMethod("POST", w, req) {
+	if checkNoExtraURLChars("/", w, req) || checkHTTPMethod("GET", w, req) {
 		return
 	}
-	io.WriteString(w, `
-<html>
-<body><title>Requester</title>
-<body>
-<h1>Requester service.</h1>
-<ul>
-<li>Use POST /fetchtaskadd json urlencoded to add a fetch task</li>
-<li>Use POST /fetchtaskget/ID to get a fetch task</li>
-<li>Use POST /fetchtaskdel/ID to delete a fetch task</li>
-<li>Use GET /fetchtasklist?offset=N&limit=N to get a list (both params are optional)</li>
-</body>
-</html>`)
+	WriteReplyToResponseAsJSON(w, req, errorcodes.OK, []string{
+		"Requester service.",
+		"Use POST /fetchtaskadd json urlencoded to add a fetch task",
+		"Use POST /fetchtaskget/ID to get a fetch task",
+		"Use POST /fetchtaskdelete/ID to delete a fetch task",
+		"Use GET /fetchtasklist?offset=N&limit=N to get a list (both params are optional)",
+		"Replies are always with Content-type = application/json"})
+	return
 }
 
 /* Клиент просит сервис выполнить http запрос к некому ресурсу. В просьбе в формате json описаны поля {метод, адрес} (опционально: заголовки, тело). Например, {GET http://google.com}.

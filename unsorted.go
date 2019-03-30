@@ -15,17 +15,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-func return404IfExtraURLChars(path string, w http.ResponseWriter, req *http.Request) (doReturn bool) {
+func checkNoExtraURLChars(path string, w http.ResponseWriter, req *http.Request) (doReturn bool) {
 	if strings.TrimPrefix(req.URL.Path, path) != "" {
-		w.WriteHeader(http.StatusNotFound)
+		WriteReplyToResponseAsJSON(w, req, errorcodes.IncorrectURL, "POST to / to obtain a help on correct URLs")
 		doReturn = true
 	}
 	return
 }
 
-func return500IfNotMethod(method string, w http.ResponseWriter, req *http.Request) (doReturn bool) {
+func checkHTTPMethod(method string, w http.ResponseWriter, req *http.Request) (doReturn bool) {
 	if req.Method != method {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteReplyToResponseAsJSON(w, req, errorcodes.IncorrectRequestMethod, "POST to / to obtain a help on correct URLs")
 		doReturn = true
 	}
 	return

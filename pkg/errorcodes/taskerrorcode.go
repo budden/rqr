@@ -27,6 +27,8 @@ const (
 	IncorrectIDFormat
 	// IncorrectRequestMethod means GET instead of POST or vice versa
 	IncorrectRequestMethod
+	// IncorrectURL is like 404
+	IncorrectURL
 	// UnknownError ...
 	UnknownError
 )
