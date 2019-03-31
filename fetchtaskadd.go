@@ -8,8 +8,6 @@ import (
 )
 
 // https://stackoverflow.com/a/15685432/9469533
-// To test, use curl -i -X POST -d "[\"GET\", \"google.com\"]" http://localhost:8086/fetchTaskadd
-// To test error reporting, remove the comma from JSON :)
 func handleFetchTaskAdd(w http.ResponseWriter, req *http.Request) {
 	SetJSONContentType(w)
 	if checkHTTPMethod("POST", w, req) {
@@ -43,7 +41,6 @@ func convertJSONFetchTaskToParsedFetchTask(req *http.Request) (pt *ParsedFetchTa
 
 	err = decoder.Decode(&ji)
 	// this is not an efficient way to check errors, but it saves lines of code :)
-
 	if failParseIf(err != nil, "Failed to parse request JSON data. Error is %#v", err) {
 		return
 	}
@@ -64,7 +61,7 @@ func convertJSONFetchTaskToParsedFetchTask(req *http.Request) (pt *ParsedFetchTa
 	if failParseIf(!ok3, "second element of JSON fetch task array must be a string (URL)") {
 		return
 	}
-	pt = &ParsedFetchTask{Method: method, URL: url}
+	result := &ParsedFetchTask{Method: method, URL: url}
 	if lenFetchTask == 4 {
 		headers, ok4 := ja[2].(map[string]interface{})
 		if failParseIf(!ok4, "third element of JSON fetch task array, if present, must be an object with string fields (header)") {
@@ -82,8 +79,11 @@ func convertJSONFetchTaskToParsedFetchTask(req *http.Request) (pt *ParsedFetchTa
 		if failParseIf(!ok6, "fourth element of JSON fetch task array, if present, must be a string (body)") {
 			return
 		}
-		pt.Headers = headersStrings
-		pt.Body = body
+		result.Headers = headersStrings
+		result.Body = body
 	}
+	// all previous returns were errors, so we take care that
+	// an empty result is returned in case of error
+	pt = result
 	return
 }
