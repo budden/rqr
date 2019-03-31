@@ -12,7 +12,7 @@ import (
 type ParsedFetchTask struct {
 	Method  string
 	URL     string
-	Headers string
+	Headers map[string]string
 	Body    string
 }
 

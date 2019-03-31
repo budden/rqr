@@ -13,6 +13,18 @@ https://github.com/budden/pgweb/blob/issue-281-by-budden-3/pkg/cli/appserver_tes
 
 В этих же проектах есть и модульные тесты. Мы неформально опишем сценарий e2e тестирования с помощью Curl. 
 
+# Окружение
+```
+$ lsb_release -a
+No LSB modules are available.
+Distributor ID:	Debian
+Description:	Debian GNU/Linux 9.4 (stretch)
+Release:	9.4
+Codename:	stretch
+$ go version
+go version go1.11.6 linux/amd64
+```
+
 # Тестовый сценарий
 
 Собрать и запустить приложение:
@@ -52,14 +64,23 @@ curl -X PUT -d "[]" http://localhost:8086/fetchtaskadd
 
 Правильный запрос на добавление
 ```
-curl -X POST -d "[\"GET\", \"http://google.com/\"]" http://localhost:8086/fetchtaskadd
+curl -X POST -d '["GET", "http://google.com/"]' http://localhost:8086/fetchtaskadd
 ```
 Ответ:
 ```
 {"Status":0,"Statustext":"NoError","Contents":{"ID":"1","Httpstatus":200,"Headers": ...,"BodyLength":14124}}
 ```
 
-Этот запрос надо повторить ещё два раза, чтобы заполнить базу значениями. В задании не сказано о том, должны ли повторяющиеся идентичные запросы должны браться из кеша. Это можно было бы сделать, но это не обязательно будет правильно (ведь время идёт и содержимое веб-страниц меняется).
+Этот запрос надо повторить ещё один раз, чтобы заполнить базу значениями. В задании не сказано о том, должны ли повторяющиеся идентичные запросы должны браться из кеша. Это можно было бы сделать, но это не обязательно будет правильно (ведь время идёт и содержимое веб-страниц меняется).
+
+Просьба выполнить POST запрос с телом (по образцу https://stackoverflow.com/a/24455606/9469533 и https://github.com/typicode/jsonplaceholder#how-to)
+```
+curl -X POST -d '["POST", "http://jsonplaceholder.typicode.com/posts", {"Content-type": "application/json; charset=UTF-8"}, "{\"title\": \"foo\", \"body\": \"bar\", \"userId\" : 1}"]' http://localhost:8086/fetchtaskadd 
+```
+Ответ:
+```
+{"Status":0,"Statustext":"OK","Contents":{"ID":"3","Httpstatus":201,...,"BodyLength":65}}
+```
 
 Неправильный запрос на получение просьбы
 ```
