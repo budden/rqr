@@ -1,20 +1,21 @@
 package main
 
 import (
-	"bytes"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/budden/rqr/pkg/errorcodes"
 )
 
 func executeFetchTask(pt *ParsedFetchTask) (et *ExecutedFetchTask, err ErrorWithCode) {
-	var b io.Reader
+	var r io.Reader
 	if pt.Body != "" {
-		b = bytes.NewBufferString(pt.Body)
+		// avoid buffer allocation, https://habr.com/ru/post/307554/
+		r = strings.NewReader(pt.Body)
 	}
-	request, err1 := http.NewRequest(pt.Method, pt.URL, b)
+	request, err1 := http.NewRequest(pt.Method, pt.URL, r)
 	if err1 != nil {
 		err = newErrorWithCode(errorcodes.FailedToMakeARequest, "%v", err1)
 		return

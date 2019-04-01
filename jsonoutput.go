@@ -15,22 +15,19 @@ func SetJSONContentType(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 }
 
-// WriteReplyToResponseAsJSON handles all errors
+// WriteReplyToResponseAsJSON writes it's errors to log (obviously we can't sent them to client)
+// and returns wasError if there was an error
 func WriteReplyToResponseAsJSON(
-	w http.ResponseWriter,
-	req *http.Request,
-	status errorcodes.FetchTaskErrorCode,
-	contents interface{}) (wasError bool) {
+	w http.ResponseWriter, req *http.Request,
+	status errorcodes.FetchTaskErrorCode, contents interface{}) (wasError bool) {
 	dataToEncode := JSONTopLevel{Status: status, Statustext: status.String(), Contents: contents}
 	encoder := json.NewEncoder(w)
 	err := encoder.Encode(dataToEncode)
 	if err != nil {
-		// we don't put the data to the log. Data can be huge and it can be broken. Instead, we put a
-		// truncated URL
+		// we don't put the data to the log. Data can be huge broken and contain confidential info.
+		// Instead, we put a truncated URL
 		url := req.URL.Path
-		if len(url) > 256 {
-			url = url[0:(256-3)] + "..."
-		}
+		url = trimToTheNumberOfRunes(url, 256)
 		log.Printf("Failed to encode results, URL is «%v», status is %v, error is %#v",
 			url, status.String(), err)
 		wasError = true
