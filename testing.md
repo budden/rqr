@@ -51,7 +51,7 @@ curl -X POST -d "[\"GET\" \"http://google.com/\"]" http://localhost:8086/fetchta
 
 Некорректный JSON 2
 ```
-curl -X POST -d "[\"GET\" \"http://google.com/\"" http://localhost:8086/fetchtaskadd
+curl -X POST -d "[\"GET\", \"http://google.com/\"" http://localhost:8086/fetchtaskadd
 ```
 Ответ - аналогичный. 
 
@@ -67,7 +67,7 @@ curl -X POST -d '["GET", "http://google.com/"]' http://localhost:8086/fetchtaska
 ```
 Ответ:
 ```
-{"Status":0,"Statustext":"NoError","Contents":{"ID":"1","Httpstatus":200,"Headers": ...,"BodyLength":14124}}
+{"Status":0,"Statustext":"NoError","Contents":{"ID":"1","Httpstatus":200,"Headers": ...,"Bodylength":14124}}
 ```
 
 Этот запрос надо повторить ещё один раз, чтобы заполнить базу значениями. В задании не сказано о том, должны ли повторяющиеся идентичные запросы должны браться из кеша. Это можно было бы сделать, но это не обязательно будет правильно (ведь время идёт и содержимое веб-страниц меняется).
@@ -78,7 +78,7 @@ curl -X POST -d '["POST", "http://jsonplaceholder.typicode.com/posts", {"Content
 ```
 Ответ:
 ```
-{"Status":0,"Statustext":"OK","Contents":{"ID":"3","Httpstatus":201,...,"BodyLength":65}}
+{"Status":0,"Statustext":"OK","Contents":{"ID":"3","Httpstatus":201,...,"Bodylength":65}}
 ```
 
 Неправильный запрос на получение просьбы

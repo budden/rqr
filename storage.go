@@ -48,9 +48,6 @@ func eraseFetchTask(iString string) (err ErrorWithCode) {
 	return
 }
 
-// It's really a shame to copy the entire contents of map to array,
-// but, if we consider a possible use in a concurrent environment,
-// it may turn out to be not so bad. And we only copy pointers
 func allFetchTasks() []*FetchTask {
 	fetchTaskStorageMutex.Lock()
 	defer fetchTaskStorageMutex.Unlock()

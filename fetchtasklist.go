@@ -42,16 +42,18 @@ func handleFetchTaskList(w http.ResponseWriter, req *http.Request) {
 	_ = WriteReplyToResponseAsJSON(w, req, errorcodes.OK, result)
 }
 
-// for paging
-func startAndLimitToBegAndEnd(start, limit, length int) (beg, end int) {
-	beg = start
+// for paging. Start and Limit are assumed to be non-negative w/o checks. In our requests,
+// negative values are rejected by the GetZeroOrOneNonNegativeIntFormValueOrReportAnError
+// Zero limit means no limit.
+func startAndLimitToBegAndEnd(nonNegativeStart, nonNegativeLimit, length int) (beg, end int) {
+	beg = nonNegativeStart
 	if beg > length {
 		beg = length
 	}
-	if limit == 0 {
-		limit = length
+	if nonNegativeLimit == 0 {
+		nonNegativeLimit = length
 	}
-	end = beg + limit
+	end = beg + nonNegativeLimit
 	if end > length {
 		end = length
 	}

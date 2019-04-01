@@ -46,7 +46,7 @@ type FetchTaskAsJSON struct {
 	// the type http.Header would change in the future
 	Httpstatus int
 	Headers    map[string][]string
-	BodyLength int
+	Bodylength int
 }
 
 func convertFetchTaskToJSON(ft *FetchTask) *FetchTaskAsJSON {
@@ -56,7 +56,7 @@ func convertFetchTaskToJSON(ft *FetchTask) *FetchTaskAsJSON {
 		ID:         ft.ID,
 		Httpstatus: et.Httpstatus,
 		Headers:    headers,
-		BodyLength: et.Bodylength}
+		Bodylength: et.Bodylength}
 }
 
 // FetchTaskListAsJSON is a data format for sending a list of fetchtasks

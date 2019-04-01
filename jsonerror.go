@@ -58,6 +58,6 @@ func reportFetchTaskErrorToClientIf(err error, w http.ResponseWriter, req *http.
 		status = je.Code()
 	}
 	// wasError is alreay true, no need to assign
-	WriteReplyToResponseAsJSON(w, req, status, err.Error())
+	_ = WriteReplyToResponseAsJSON(w, req, status, err.Error())
 	return
 }

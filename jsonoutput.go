@@ -24,8 +24,8 @@ func WriteReplyToResponseAsJSON(
 	encoder := json.NewEncoder(w)
 	err := encoder.Encode(dataToEncode)
 	if err != nil {
-		// we don't put the data to the log. Data can be huge broken and contain confidential info.
-		// Instead, we put a truncated URL
+		// we don't put the data to the log. Data can be huge, broken and contain confidential info.
+		// Instead, we put a truncated URL (URL can also be huge)
 		url := req.URL.Path
 		url = trimToTheNumberOfRunes(url, 256)
 		log.Printf("Failed to encode results, URL is «%v», status is %v, error is %#v",
